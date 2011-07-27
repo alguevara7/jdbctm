@@ -1,6 +1,7 @@
 package net.halfrunt.jdbctm;
 
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
@@ -8,8 +9,17 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 public class JdbcTmDriver implements java.sql.Driver {
-
-	private JdbcTmDriver mostRecentUnderlyingDriver;
+	
+	static {
+		try {
+			DriverManager.registerDriver(new JdbcTmDriver());
+		}
+		catch (SQLException s) {
+			throw (RuntimeException) new RuntimeException("could not register JdbcTmDriver driver!").initCause(s);
+		}	
+	}
+	
+	private Driver mostRecentUnderlyingDriver;
 
 	public boolean acceptsURL(String url) throws SQLException {
 		return getUnderlyingDriver(url).acceptsURL(url);
@@ -35,7 +45,7 @@ public class JdbcTmDriver implements java.sql.Driver {
 		return this.mostRecentUnderlyingDriver != null ? this.mostRecentUnderlyingDriver.jdbcCompliant() : false;
 	}
 
-	private synchronized JdbcTmDriver getUnderlyingDriver(String url) throws SQLException {
+	private synchronized Driver getUnderlyingDriver(String url) throws SQLException {
 		if (url.startsWith("jdbc:jdbctm")) {
 			url = url.substring(9);
 			

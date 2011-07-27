@@ -22,6 +22,7 @@ import java.util.Stack;
 public class JdbcTmConnection implements Connection, JdbcTmSession {
 
 	private final Connection connection;
+	
 	private volatile boolean autoCommit;
 
 	private final Stack<Savepoint> savePoints = new Stack<Savepoint>();
@@ -65,7 +66,7 @@ public class JdbcTmConnection implements Connection, JdbcTmSession {
 	}
 
 	public Statement createStatement() throws SQLException {
-		return this.connection.createStatement();
+		return new JdbcTmStatement(this.connection.createStatement());
 	}
 
 	public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
